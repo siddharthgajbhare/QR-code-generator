@@ -1,14 +1,36 @@
-<title>QR Code Generator | CodingNepal</title>
+<title>QR Code Generator</title>
+
 <header>
   <h1>QR Code Generator</h1>
-  <p>Paste the URL/Text here</p>
+  <p>Generate a QR code instantly for any URL or text.</p>
 </header>
-<div class="wrapper">
-  <div class="form">
 
-    <button>Generate QR Code</button>
+<div class="wrapper">
+
+  <div class="form">
+    <input
+      type="text"
+      placeholder="Enter URL or text..."
+      required
+    >
+
+    <button class="generate-btn">
+      Generate QR Code
+    </button>
   </div>
+
   <div class="qr-code">
-    <img decoding="async" src="" alt="qr-code">
+    <img decoding="async" src="" alt="Generated QR Code">
   </div>
+
+  <div class="actions">
+    <button class="download-btn">
+      Download QR Code
+    </button>
+
+    <button class="clear-btn">
+      Clear
+    </button>
+  </div>
+
 </div>
