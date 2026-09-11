@@ -1,37 +1,123 @@
-//
-<title>QR Code Generator</title>
+<!DOCTYPE html>
+<html lang="en">
 
-<header>
-  <h1>QR Code Generator</h1>
-  <p>Generate a QR code instantly for any URL or text.</p>
-</header>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<div class="wrapper">
+  <title>QR Code Generator</title>
 
-  <div class="form">
-    <input
-      type="text"
-      placeholder="Enter URL or text..."
-      required
-    >
+  <link rel="stylesheet" href="style.css">
+</head>
 
-    <button class="generate-btn">
-      Generate QR Code
-    </button>
-  </div>
+<body>
 
-  <div class="qr-code">
-    <img decoding="async" src="" alt="Generated QR Code">
-  </div>
+  <header>
+    <div class="icon">▦</div>
 
-  <div class="actions">
-    <button class="download-btn">
-      Download QR Code
-    </button>
+    <h1>QR Code Generator</h1>
 
-    <button class="clear-btn">
-      Clear
-    </button>
-  </div>
+    <p>Create beautiful QR codes instantly.</p>
+  </header>
 
-</div>
+
+  <main class="wrapper">
+
+    <div class="form">
+
+      <label for="qrInput">Enter URL or text</label>
+
+      <input
+        type="text"
+        id="qrInput"
+        placeholder="https://example.com"
+        autocomplete="off"
+      >
+
+      <button class="generate-btn">
+        ⚡ Generate QR Code
+      </button>
+
+    </div>
+
+
+    <div class="options">
+
+      <div class="option">
+        <span>QR Size</span>
+
+        <select id="size">
+          <option value="200">Small</option>
+          <option value="250" selected>Medium</option>
+          <option value="350">Large</option>
+          <option value="500">Extra Large</option>
+        </select>
+      </div>
+
+
+      <div class="option">
+        <span>QR Color</span>
+
+        <input
+          type="color"
+          id="qrColor"
+          value="#000000"
+        >
+      </div>
+
+    </div>
+
+
+    <div class="qr-code">
+
+      <div class="placeholder" id="placeholder">
+        <div class="qr-symbol">▦</div>
+        Your QR code will appear here
+      </div>
+
+      <img
+        src=""
+        alt="Generated QR Code"
+      >
+
+    </div>
+
+
+    <div class="actions">
+
+      <button
+        class="download-btn"
+        disabled
+      >
+        📥 Download
+      </button>
+
+      <button
+        class="copy-btn"
+        disabled
+      >
+        📋 Copy
+      </button>
+
+      <button class="clear-btn">
+        🗑 Clear
+      </button>
+
+    </div>
+
+
+    <div class="status" id="status"></div>
+
+  </main>
+
+
+  <footer>
+    Fast • Simple • Free
+  </footer>
+
+
+  <script src="script.js"></script>
+
+</body>
+
+</html>
