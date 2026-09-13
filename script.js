@@ -1,3 +1,4 @@
+//links
 const wrapper = document.querySelector(".wrapper");
 
 const qrInput = wrapper.querySelector(".form input");
