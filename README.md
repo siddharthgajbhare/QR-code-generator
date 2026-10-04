@@ -1,49 +1,61 @@
 # 🔳 QR Code Generator
 
-A modern, responsive, and user-friendly **QR Code Generator** built using **HTML, CSS, and JavaScript**.
+<p align="center">
+  <strong>A Modern, Responsive & User-Friendly QR Code Generator</strong>
+</p>
 
-The application allows users to quickly generate QR codes from URLs, text, email addresses, and phone numbers. It also provides customization options, download functionality, QR history, and dark/light mode.
-
----
-
-## ✨ Features
-
-### 🔗 Multiple QR Types
-
-Generate QR codes for:
-
-- 🔗 URLs
-- 📝 Text
-- ✉️ Email addresses
-- 📞 Phone numbers
+<p align="center">
+  Built with HTML5, CSS3 and JavaScript
+</p>
 
 ---
 
-### 🎨 QR Customization
+## 👨‍💻 About the Project
 
-Customize your QR code with:
+**QR Code Generator** is a modern web application developed by **Siddharth Gajbhare** that allows users to quickly create and customize QR codes for different types of content.
 
-- QR code size
-- QR foreground color
-- QR background color
-- Custom download filename
-
-Available sizes:
-
-- Small
-- Medium
-- Large
-- Extra Large
+The application provides a clean user interface, multiple QR content types, customization options, QR history, download functionality, and Dark/Light mode.
 
 ---
 
-### 📥 Download QR Code
+## ✨ Key Features
 
-Download generated QR codes as **PNG images**.
+- 🔗 Generate QR codes for **URLs**
+- 📝 Generate QR codes for **Text**
+- 📧 Generate QR codes for **Email**
+- 📞 Generate QR codes for **Phone Numbers**
+- 🎨 Customize QR and background colors
+- 📐 Multiple QR code sizes
+- 📥 Download QR code as PNG
+- 📋 Copy QR content
+- 🕘 Save and reuse QR history
+- 🌙 Dark / Light mode
+- 🔢 Character counter
+- ⚡ Automatic QR regeneration
+- 📱 Fully responsive design
+- ❌ Input validation and error handling
 
-You can also specify your own filename before downloading.
+---
 
-Example:
+## 🛠️ Technologies Used
+
+| Technology | Purpose |
+|------------|---------|
+| HTML5 | Structure |
+| CSS3 | Styling & Responsive UI |
+| JavaScript | Application Logic |
+| LocalStorage | History & Theme Storage |
+| QRServer API | QR Code Generation |
+| Google Fonts | Typography |
+
+---
+
+## 📂 Project Structure
 
 ```text
-college-project-qr.png
+QR-Code-Generator/
+│
+├── index.html
+├── style.css
+├── script.js
+└── README.md
