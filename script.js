@@ -1,133 +1,395 @@
-//links
-const wrapper = document.querySelector(".wrapper");
+/* =========================
+   ELEMENTS
+========================= */
 
-const qrInput = wrapper.querySelector(".form input");
-const generateBtn = wrapper.querySelector(".form button");
-const qrImg = wrapper.querySelector(".qr-code img");
+const wrapper =
+  document.querySelector(".wrapper");
 
-const downloadBtn = wrapper.querySelector(".download-btn");
-const copyBtn = wrapper.querySelector(".copy-btn");
-const clearBtn = wrapper.querySelector(".clear-btn");
+const qrInput =
+  document.querySelector("#qrInput");
 
-const sizeSelect = document.querySelector("#size");
-const colorPicker = document.querySelector("#qrColor");
+const generateBtn =
+  document.querySelector(".generate-btn");
 
-const placeholder = document.querySelector("#placeholder");
-const status = document.querySelector("#status");
+const qrImg =
+  document.querySelector("#qrImage");
 
+const downloadBtn =
+  document.querySelector(".download-btn");
 
-let preValue = "";
-let currentQR = "";
-let currentText = "";
+const copyBtn =
+  document.querySelector(".copy-btn");
+
+const clearBtn =
+  document.querySelector(".clear-btn");
+
+const sizeSelect =
+  document.querySelector("#size");
+
+const colorPicker =
+  document.querySelector("#qrColor");
+
+const bgColorPicker =
+  document.querySelector("#bgColor");
+
+const fileNameInput =
+  document.querySelector("#fileName");
+
+const placeholder =
+  document.querySelector("#placeholder");
+
+const status =
+  document.querySelector("#status");
+
+const charCount =
+  document.querySelector("#charCount");
+
+const qrContainer =
+  document.querySelector("#qrContainer");
+
+const themeBtn =
+  document.querySelector("#themeBtn");
+
+const historyList =
+  document.querySelector("#historyList");
+
+const clearHistoryBtn =
+  document.querySelector("#clearHistoryBtn");
+
+const typeButtons =
+  document.querySelectorAll(".type-btn");
 
 
 /* =========================
-   Generate QR Code
+   VARIABLES
 ========================= */
 
-function generateQRCode() {
+let currentQR = "";
 
-  const qrValue = qrInput.value.trim();
+let currentText = "";
 
-
-  if (!qrValue) {
-
-    status.textContent =
-      "Please enter a URL or text.";
-
-    qrInput.focus();
-
-    return;
-  }
+let currentType = "url";
 
 
-  // Don't generate the exact same QR again
-  if (preValue === qrValue && currentQR) {
-    return;
-  }
-
-
-  preValue = qrValue;
-  currentText = qrValue;
-
-
-  // Loading state
-  generateBtn.innerText =
-    "Generating QR Code...";
-
-  generateBtn.disabled = true;
-
-
-  const size =
-    sizeSelect.value;
-
-
-  const color =
-    colorPicker.value.replace("#", "");
-
-
-  currentQR =
-    `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&color=${color}&data=${encodeURIComponent(qrValue)}`;
-
-
-  // Generate QR
-  qrImg.src = currentQR;
-
-
-  // When QR loads
-  qrImg.addEventListener(
-    "load",
-    () => {
-
-      wrapper.classList.add("active");
-
-      qrImg.style.display = "block";
-
-      placeholder.style.display = "none";
-
-
-      generateBtn.innerText =
-        "Generate QR Code";
-
-      generateBtn.disabled = false;
-
-
-      downloadBtn.disabled = false;
-
-      copyBtn.disabled = false;
-
-
-      status.textContent =
-        "✓ QR code generated successfully.";
-
-    },
-    { once: true }
+let history =
+  JSON.parse(
+    localStorage.getItem("qrHistory") || "[]"
   );
 
 
-  // If QR fails
-  qrImg.addEventListener(
+/* =========================
+   STATUS
+========================= */
+
+function setStatus(
+  message,
+  error = false
+) {
+
+  status.textContent =
+    message;
+
+  status.classList.toggle(
     "error",
-    () => {
-
-      generateBtn.innerText =
-        "Generate QR Code";
-
-      generateBtn.disabled = false;
-
-
-      status.textContent =
-        "Unable to generate QR code.";
-
-    },
-    { once: true }
+    error
   );
 
 }
 
 
 /* =========================
-   Generate Button
+   CHARACTER COUNTER
+========================= */
+
+function updateCounter() {
+
+  charCount.textContent =
+    `${qrInput.value.length} / 1000`;
+
+}
+
+
+/* =========================
+   VALIDATION
+========================= */
+
+function validateInput(value) {
+
+  if (!value) {
+
+    return "Please enter a URL or text.";
+
+  }
+
+
+  /* URL */
+
+  if (currentType === "url") {
+
+    try {
+
+      const url =
+        new URL(value);
+
+
+      if (
+        !["http:", "https:"]
+          .includes(url.protocol)
+      ) {
+
+        throw new Error();
+
+      }
+
+    }
+
+    catch {
+
+      return (
+        "Enter a valid URL, e.g. https://example.com"
+      );
+
+    }
+
+  }
+
+
+  /* EMAIL */
+
+  if (
+    currentType === "email" &&
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      .test(value)
+  ) {
+
+    return (
+      "Enter a valid email address."
+    );
+
+  }
+
+
+  /* PHONE */
+
+  if (
+    currentType === "phone" &&
+    !/^[+\d\s().-]{7,20}$/
+      .test(value)
+  ) {
+
+    return (
+      "Enter a valid phone number."
+    );
+
+  }
+
+
+  return "";
+
+}
+
+
+/* =========================
+   QR DATA
+========================= */
+
+function getQRData(value) {
+
+  if (currentType === "email") {
+
+    return `mailto:${value}`;
+
+  }
+
+
+  if (currentType === "phone") {
+
+    return `tel:${value}`;
+
+  }
+
+
+  return value;
+
+}
+
+
+/* =========================
+   GENERATE QR
+========================= */
+
+function generateQRCode() {
+
+  const value =
+    qrInput.value.trim();
+
+
+  const error =
+    validateInput(value);
+
+
+  if (error) {
+
+    setStatus(
+      error,
+      true
+    );
+
+    qrInput.focus();
+
+    return;
+
+  }
+
+
+  const data =
+    getQRData(value);
+
+
+  currentText =
+    data;
+
+
+  const size =
+    Number(sizeSelect.value);
+
+
+  const color =
+    colorPicker.value
+      .replace("#", "");
+
+
+  const background =
+    bgColorPicker.value
+      .replace("#", "");
+
+
+  const params =
+    new URLSearchParams({
+
+      size:
+        `${size}x${size}`,
+
+      color:
+        color,
+
+      bgcolor:
+        background,
+
+      format:
+        "png",
+
+      data:
+        data
+
+    });
+
+
+  currentQR =
+    `https://api.qrserver.com/v1/create-qr-code/?${params}`;
+
+
+  generateBtn.disabled =
+    true;
+
+
+  generateBtn.textContent =
+    "Generating...";
+
+
+  qrContainer.classList.add(
+    "loading"
+  );
+
+
+  setStatus(
+    "Creating your QR code..."
+  );
+
+
+  /* QR LOAD */
+
+  qrImg.onload =
+    () => {
+
+      qrContainer.classList.remove(
+        "loading"
+      );
+
+
+      wrapper.classList.add(
+        "active"
+      );
+
+
+      qrImg.style.display =
+        "block";
+
+
+      placeholder.style.display =
+        "none";
+
+
+      generateBtn.disabled =
+        false;
+
+
+      generateBtn.textContent =
+        "⚡ Generate QR Code";
+
+
+      downloadBtn.disabled =
+        false;
+
+
+      copyBtn.disabled =
+        false;
+
+
+      setStatus(
+        "✓ QR code generated successfully."
+      );
+
+
+      saveHistory(value);
+
+    };
+
+
+  /* QR ERROR */
+
+  qrImg.onerror =
+    () => {
+
+      qrContainer.classList.remove(
+        "loading"
+      );
+
+
+      generateBtn.disabled =
+        false;
+
+
+      generateBtn.textContent =
+        "⚡ Generate QR Code";
+
+
+      setStatus(
+        "Unable to generate QR code.",
+        true
+      );
+
+    };
+
+
+  qrImg.src =
+    currentQR;
+
+}
+
+
+/* =========================
+   GENERATE BUTTON
 ========================= */
 
 generateBtn.addEventListener(
@@ -137,15 +399,19 @@ generateBtn.addEventListener(
 
 
 /* =========================
-   Enter Key
+   ENTER KEY
 ========================= */
 
 qrInput.addEventListener(
   "keydown",
   (event) => {
 
-    if (event.key === "Enter") {
+    if (
+      event.key === "Enter"
+    ) {
+
       generateQRCode();
+
     }
 
   }
@@ -153,55 +419,106 @@ qrInput.addEventListener(
 
 
 /* =========================
-   Input
+   CHARACTER COUNTER
 ========================= */
 
 qrInput.addEventListener(
-  "keyup",
-  () => {
-
-    const value =
-      qrInput.value.trim();
+  "input",
+  updateCounter
+);
 
 
-    if (!value) {
+/* =========================
+   QR TYPES
+========================= */
 
-      wrapper.classList.remove("active");
+typeButtons.forEach(
+  button => {
 
+    button.addEventListener(
+      "click",
+      () => {
 
-      qrImg.src = "";
-
-      qrImg.style.display =
-        "none";
-
-
-      placeholder.style.display =
-        "block";
-
-
-      preValue = "";
-
-      currentQR = "";
-
-      currentText = "";
+        typeButtons.forEach(
+          btn =>
+            btn.classList.remove(
+              "active"
+            )
+        );
 
 
-      downloadBtn.disabled =
-        true;
-
-      copyBtn.disabled =
-        true;
+        button.classList.add(
+          "active"
+        );
 
 
-      status.textContent = "";
-    }
+        currentType =
+          button.dataset.type;
+
+
+        const placeholders = {
+
+          url:
+            "https://example.com",
+
+          text:
+            "Enter any text here...",
+
+          email:
+            "example@email.com",
+
+          phone:
+            "+91 9876543210"
+
+        };
+
+
+        qrInput.placeholder =
+          placeholders[currentType];
+
+
+        qrInput.focus();
+
+      }
+    );
 
   }
 );
 
 
 /* =========================
-   Download QR
+   AUTO REGENERATE
+========================= */
+
+[
+  sizeSelect,
+  colorPicker,
+  bgColorPicker
+]
+.forEach(
+  control => {
+
+    control.addEventListener(
+      "change",
+      () => {
+
+        if (
+          qrInput.value.trim()
+        ) {
+
+          generateQRCode();
+
+        }
+
+      }
+    );
+
+  }
+);
+
+
+/* =========================
+   DOWNLOAD
 ========================= */
 
 downloadBtn.addEventListener(
@@ -209,14 +526,17 @@ downloadBtn.addEventListener(
   async () => {
 
     if (!currentQR) {
+
       return;
+
     }
 
 
     try {
 
-      status.textContent =
-        "Preparing download...";
+      setStatus(
+        "Preparing download..."
+      );
 
 
       const response =
@@ -224,9 +544,9 @@ downloadBtn.addEventListener(
 
 
       if (!response.ok) {
-        throw new Error(
-          "Download failed"
-        );
+
+        throw new Error();
+
       }
 
 
@@ -235,38 +555,77 @@ downloadBtn.addEventListener(
 
 
       const url =
-        URL.createObjectURL(blob);
+        URL.createObjectURL(
+          blob
+        );
 
 
       const link =
-        document.createElement("a");
+        document.createElement(
+          "a"
+        );
 
 
-      link.href = url;
+      let fileName =
+        fileNameInput.value.trim();
+
+
+      if (!fileName) {
+
+        fileName =
+          "my-qr-code";
+
+      }
+
+
+      fileName =
+        fileName.replace(
+          /[\\/:*?"<>|]/g,
+          "-"
+        );
+
+
+      link.href =
+        url;
+
 
       link.download =
-        "qr-code.png";
+        `${fileName}.png`;
 
 
-      document.body.appendChild(link);
+      document.body.appendChild(
+        link
+      );
+
 
       link.click();
+
 
       link.remove();
 
 
-      URL.revokeObjectURL(url);
+      URL.revokeObjectURL(
+        url
+      );
 
 
-      status.textContent =
-        "✓ QR code downloaded.";
+      setStatus(
+        "✓ QR code downloaded."
+      );
 
     }
 
-    catch (error) {
+    catch {
 
-      status.textContent =
-        "Download failed. Please try again.";
+      window.open(
+        currentQR,
+        "_blank"
+      );
+
+
+      setStatus(
+        "QR opened in a new tab. Right-click it to save."
+      );
 
     }
 
@@ -275,7 +634,7 @@ downloadBtn.addEventListener(
 
 
 /* =========================
-   Copy Text
+   COPY
 ========================= */
 
 copyBtn.addEventListener(
@@ -283,25 +642,33 @@ copyBtn.addEventListener(
   async () => {
 
     if (!currentText) {
+
       return;
+
     }
 
 
     try {
 
-      await navigator.clipboard
-        .writeText(currentText);
+      await navigator
+        .clipboard
+        .writeText(
+          currentText
+        );
 
 
-      status.textContent =
-        "✓ Text copied to clipboard.";
+      setStatus(
+        "✓ QR content copied."
+      );
 
     }
 
-    catch (error) {
+    catch {
 
-      status.textContent =
-        "Unable to copy text.";
+      setStatus(
+        "Unable to copy content.",
+        true
+      );
 
     }
 
@@ -310,7 +677,7 @@ copyBtn.addEventListener(
 
 
 /* =========================
-   Clear
+   CLEAR
 ========================= */
 
 clearBtn.addEventListener(
@@ -321,6 +688,7 @@ clearBtn.addEventListener(
 
 
     qrImg.src = "";
+
 
     qrImg.style.display =
       "none";
@@ -335,28 +703,33 @@ clearBtn.addEventListener(
     );
 
 
-    preValue = "";
+    currentQR =
+      "";
 
-    currentQR = "";
-
-    currentText = "";
-
-
-    generateBtn.innerText =
-      "⚡ Generate QR Code";
-
-    generateBtn.disabled =
-      false;
+    currentText =
+      "";
 
 
     downloadBtn.disabled =
       true;
 
+
     copyBtn.disabled =
       true;
 
 
-    status.textContent = "";
+    generateBtn.disabled =
+      false;
+
+
+    generateBtn.textContent =
+      "⚡ Generate QR Code";
+
+
+    setStatus("");
+
+
+    updateCounter();
 
 
     qrInput.focus();
@@ -366,42 +739,316 @@ clearBtn.addEventListener(
 
 
 /* =========================
-   Size Change
+   HISTORY
 ========================= */
 
-sizeSelect.addEventListener(
-  "change",
-  () => {
+function saveHistory(value) {
 
-    if (qrInput.value.trim()) {
+  const item = {
 
-      // Allow regeneration
-      preValue = "";
+    text:
+      value,
 
-      generateQRCode();
+    type:
+      currentType
+
+  };
+
+
+  history = [
+
+    item,
+
+    ...history.filter(
+      x =>
+        x.text !== value
+    )
+
+  ].slice(0, 6);
+
+
+  localStorage.setItem(
+    "qrHistory",
+    JSON.stringify(history)
+  );
+
+
+  renderHistory();
+
+}
+
+
+/* =========================
+   ESCAPE HTML
+========================= */
+
+function escapeHTML(value) {
+
+  return value.replace(
+    /[&<>"']/g,
+    character => {
+
+      return {
+
+        "&":
+          "&amp;",
+
+        "<":
+          "&lt;",
+
+        ">":
+          "&gt;",
+
+        '"':
+          "&quot;",
+
+        "'":
+          "&#039;"
+
+      }[character];
 
     }
+  );
+
+}
+
+
+/* =========================
+   RENDER HISTORY
+========================= */
+
+function renderHistory() {
+
+  if (
+    !history.length
+  ) {
+
+    historyList.innerHTML =
+      `
+      <p class="empty-history">
+        No QR codes generated yet.
+      </p>
+      `;
+
+    return;
+
+  }
+
+
+  historyList.innerHTML =
+    history
+      .map(
+        (item, index) => {
+
+          let icon = "📝";
+
+
+          if (
+            item.type === "url"
+          ) {
+
+            icon = "🔗";
+
+          }
+
+          else if (
+            item.type === "email"
+          ) {
+
+            icon = "✉";
+
+          }
+
+          else if (
+            item.type === "phone"
+          ) {
+
+            icon = "📞";
+
+          }
+
+
+          return `
+
+          <div class="history-item">
+
+            <span>
+              ${icon}
+            </span>
+
+            <span
+              class="history-text"
+            >
+              ${escapeHTML(
+                item.text
+              )}
+            </span>
+
+            <button
+              type="button"
+              data-index="${index}"
+            >
+              Use
+            </button>
+
+          </div>
+
+          `;
+
+        }
+      )
+      .join("");
+
+}
+
+
+/* =========================
+   USE HISTORY
+========================= */
+
+historyList.addEventListener(
+  "click",
+  event => {
+
+    const button =
+      event.target.closest(
+        "button[data-index]"
+      );
+
+
+    if (!button) {
+
+      return;
+
+    }
+
+
+    const item =
+      history[
+        Number(
+          button.dataset.index
+        )
+      ];
+
+
+    qrInput.value =
+      item.text;
+
+
+    currentType =
+      item.type;
+
+
+    typeButtons.forEach(
+      btn => {
+
+        btn.classList.toggle(
+          "active",
+          btn.dataset.type ===
+            currentType
+        );
+
+      }
+    );
+
+
+    updateCounter();
+
+
+    generateQRCode();
 
   }
 );
 
 
 /* =========================
-   Color Change
+   CLEAR HISTORY
 ========================= */
 
-colorPicker.addEventListener(
-  "change",
+clearHistoryBtn.addEventListener(
+  "click",
   () => {
 
-    if (qrInput.value.trim()) {
+    history = [];
 
-      // Allow regeneration
-      preValue = "";
 
-      generateQRCode();
+    localStorage.removeItem(
+      "qrHistory"
+    );
 
-    }
+
+    renderHistory();
+
+
+    setStatus(
+      "History cleared."
+    );
 
   }
 );
+
+
+/* =========================
+   DARK / LIGHT MODE
+========================= */
+
+const savedTheme =
+  localStorage.getItem(
+    "qrTheme"
+  );
+
+
+if (
+  savedTheme === "light"
+) {
+
+  document.body.classList.add(
+    "light"
+  );
+
+
+  themeBtn.textContent =
+    "☀";
+
+}
+
+
+themeBtn.addEventListener(
+  "click",
+  () => {
+
+    document.body.classList.toggle(
+      "light"
+    );
+
+
+    const isLight =
+      document.body.classList.contains(
+        "light"
+      );
+
+
+    localStorage.setItem(
+      "qrTheme",
+      isLight
+        ? "light"
+        : "dark"
+    );
+
+
+    themeBtn.textContent =
+      isLight
+        ? "☀"
+        : "☾";
+
+  }
+);
+
+
+/* =========================
+   INITIALIZE
+========================= */
+
+updateCounter();
+
+renderHistory();
