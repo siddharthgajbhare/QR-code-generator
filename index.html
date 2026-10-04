@@ -1,10 +1,11 @@
-//tags
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta name="description" content="Fast and beautiful QR Code Generator">
 
   <title>QR Code Generator</title>
 
@@ -13,50 +14,156 @@
 
 <body>
 
+  <!-- =========================
+       HEADER
+  ========================== -->
+
   <header>
+
     <div class="icon">▦</div>
 
-    <h1>QR Code Generator</h1>
+    <div>
+      <h1>QR Code Generator</h1>
+      <p>Create beautiful QR codes instantly.</p>
+    </div>
 
-    <p>Create beautiful QR codes instantly.</p>
+    <button
+      class="theme-btn"
+      id="themeBtn"
+      type="button"
+      title="Toggle theme"
+    >
+      ☾
+    </button>
+
   </header>
 
 
+  <!-- =========================
+       MAIN
+  ========================== -->
+
   <main class="wrapper">
+
+    <!-- INPUT -->
 
     <div class="form">
 
-      <label for="qrInput">Enter URL or text</label>
+      <div class="label-row">
+
+        <label for="qrInput">
+          Enter URL or text
+        </label>
+
+        <span id="charCount">
+          0 / 1000
+        </span>
+
+      </div>
+
 
       <input
-        type="text"
         id="qrInput"
+        maxlength="1000"
+        type="text"
         placeholder="https://example.com"
         autocomplete="off"
       >
 
-      <button class="generate-btn">
+
+      <!-- QR TYPES -->
+
+      <div class="quick-types">
+
+        <button
+          class="type-btn active"
+          data-type="url"
+          type="button"
+        >
+          🔗 URL
+        </button>
+
+        <button
+          class="type-btn"
+          data-type="text"
+          type="button"
+        >
+          📝 Text
+        </button>
+
+        <button
+          class="type-btn"
+          data-type="email"
+          type="button"
+        >
+          ✉ Email
+        </button>
+
+        <button
+          class="type-btn"
+          data-type="phone"
+          type="button"
+        >
+          📞 Phone
+        </button>
+
+      </div>
+
+
+      <!-- GENERATE -->
+
+      <button
+        class="generate-btn"
+        type="button"
+      >
         ⚡ Generate QR Code
       </button>
 
     </div>
 
 
+    <!-- =========================
+         OPTIONS
+    ========================== -->
+
     <div class="options">
 
+      <!-- SIZE -->
+
       <div class="option">
+
         <span>QR Size</span>
 
         <select id="size">
-          <option value="200">Small</option>
-          <option value="250" selected>Medium</option>
-          <option value="350">Large</option>
-          <option value="500">Extra Large</option>
+
+          <option value="200">
+            Small
+          </option>
+
+          <option
+            value="250"
+            selected
+          >
+            Medium
+          </option>
+
+          <option value="350">
+            Large
+          </option>
+
+          <option value="500">
+            Extra Large
+          </option>
+
         </select>
+
       </div>
 
 
+      <!-- QR COLOR -->
+
       <div class="option">
+
         <span>QR Color</span>
 
         <input
@@ -64,56 +171,170 @@
           id="qrColor"
           value="#000000"
         >
+
+      </div>
+
+
+      <!-- BACKGROUND COLOR -->
+
+      <div class="option">
+
+        <span>Background</span>
+
+        <input
+          type="color"
+          id="bgColor"
+          value="#ffffff"
+        >
+
+      </div>
+
+
+      <!-- FILE NAME -->
+
+      <div class="option">
+
+        <span>Download Name</span>
+
+        <input
+          type="text"
+          id="fileName"
+          value="my-qr-code"
+          maxlength="50"
+        >
+
       </div>
 
     </div>
 
 
-    <div class="qr-code">
+    <!-- =========================
+         QR PREVIEW
+    ========================== -->
 
-      <div class="placeholder" id="placeholder">
-        <div class="qr-symbol">▦</div>
-        Your QR code will appear here
+    <div
+      class="qr-code"
+      id="qrContainer"
+    >
+
+      <div
+        class="placeholder"
+        id="placeholder"
+      >
+
+        <div class="qr-symbol">
+          ▦
+        </div>
+
+        <strong>
+          Your QR code will appear here
+        </strong>
+
+        <small>
+          Enter content and click Generate
+        </small>
+
       </div>
 
+
       <img
+        id="qrImage"
         src=""
         alt="Generated QR Code"
       >
 
+
+      <div class="loader"></div>
+
     </div>
 
+
+    <!-- =========================
+         ACTION BUTTONS
+    ========================== -->
 
     <div class="actions">
 
       <button
         class="download-btn"
+        type="button"
         disabled
       >
         📥 Download
       </button>
 
+
       <button
         class="copy-btn"
+        type="button"
         disabled
       >
         📋 Copy
       </button>
 
-      <button class="clear-btn">
+
+      <button
+        class="clear-btn"
+        type="button"
+      >
         🗑 Clear
       </button>
 
     </div>
 
 
-    <div class="status" id="status"></div>
+    <!-- =========================
+         HISTORY
+    ========================== -->
+
+    <div class="history-section">
+
+      <div class="history-title">
+
+        <span>
+          🕘 Recent QR Codes
+        </span>
+
+        <button
+          id="clearHistoryBtn"
+          type="button"
+        >
+          Clear history
+        </button>
+
+      </div>
+
+
+      <div
+        id="historyList"
+        class="history-list"
+      >
+
+        <p class="empty-history">
+          No QR codes generated yet.
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <!-- STATUS -->
+
+    <div
+      class="status"
+      id="status"
+      role="status"
+      aria-live="polite"
+    ></div>
 
   </main>
 
 
+  <!-- FOOTER -->
+
   <footer>
-    Fast • Simple • Free
+    Fast • Simple • Free • No sign-up required
   </footer>
 
 
